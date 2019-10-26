@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
@@ -62,6 +63,10 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorArmAngle.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorArmExtender.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        // Set Right Motors to reverse values
+        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // Set Motor zeroPowerBehavior
         motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -98,31 +103,43 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
 
         double rightJoystickX = -gamepad1.right_stick_x; // Used to turn robot left(Counter-Clockwise)/right(Clockwise)
         double rightJoystickY = -gamepad1.right_stick_y; // Unused
+        int hookServoPos = 0;
+//        boolean yButtonPressed = -gamepad1.button3;
+//
+//        if ( yButtonPressed = true) {
+//            servo.
+//        }
 
-        if (leftJoystickY >= -1 && leftJoystickY < 0) { // Left Joystick Down
-            motorFL.setPower(-leftJoystickY);
-            motorFR.setPower(leftJoystickY);
-            motorBL.setPower(-leftJoystickY);
-            motorBR.setPower(leftJoystickY);
-        } else if (leftJoystickY <= 1 && leftJoystickY > 0) { // Left Joystick Up
-            motorFL.setPower(-leftJoystickY);
-            motorFR.setPower(leftJoystickY);
-            motorBL.setPower(-leftJoystickY);
-            motorBR.setPower(leftJoystickY);
-        } else if (leftJoystickX <= 1 && leftJoystickX > 0){ // Left Joystick Left
+        telemetry.addData("Left Joystick (X,Y)", "(" + leftJoystickX + "," + leftJoystickY + ")");
+        // Setting the motors to a negative value will cause the robot to go forwards
+        if (leftJoystickY >= -1 && leftJoystickY < 0) { // Left Joystick Down (Backwards)
+            telemetry.addData("Direction", "Down");
+            motorFL.setPower(leftJoystickY); // -1
+            motorFR.setPower(leftJoystickY); // -1
+            motorBL.setPower(leftJoystickY); // -1
+            motorBR.setPower(leftJoystickY); // -1
+        } else if (leftJoystickY <= 1 && leftJoystickY > 0) { // Left Joystick Up (Forwards)
+            telemetry.addData("Direction", "Up");
+            motorFL.setPower(leftJoystickY); // 1
+            motorFR.setPower(leftJoystickY); // 1
+            motorBL.setPower(leftJoystickY); // 1
+            motorBR.setPower(leftJoystickY); // 1
+        } else if (leftJoystickX <= 1 && leftJoystickX > 0){ // Left Joystick Left (Left)
             //robot going sideways toward the left
             //left joystick is going towards the left
-            motorFL.setPower(leftJoystickX);
-            motorFR.setPower(leftJoystickX);
-            motorBL.setPower(-leftJoystickX);
-            motorBR.setPower(-leftJoystickX);
-        } else if (leftJoystickX >= -1 && leftJoystickX > 0){ // Left Joystick Right
+            telemetry.addData("Direction", "Left");
+            motorFL.setPower(-leftJoystickX);  //  1
+            motorFR.setPower(leftJoystickX);   // -1
+            motorBL.setPower(leftJoystickX);   // -1
+            motorBR.setPower(-leftJoystickX);  //  1
+        } else if (leftJoystickX >= -1 && leftJoystickX > 0){ // Left Joystick Right (Right)
             //robot going sideways toward the right
             //left joystick is going towards the right
-            motorFL.setPower(-leftJoystickX);
-            motorFR.setPower(-leftJoystickX);
-            motorBL.setPower(leftJoystickX);
-            motorBR.setPower(leftJoystickX);
+            telemetry.addData("Direction", "Right");
+            motorFL.setPower(-leftJoystickX);  //  1
+            motorFR.setPower(leftJoystickX);   // -1
+            motorBL.setPower(leftJoystickX);   // -1
+            motorBR.setPower(-leftJoystickX);  //  1
         } else {
             motorFL.setPower(0);
             motorFR.setPower(0);
@@ -131,16 +148,16 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         }
 
         //turn robot
-        if (rightJoystickX <= 1 && rightJoystickX > 0){
-            motorFL.setPower(-rightJoystickX);
-            motorFR.setPower(-rightJoystickX);
-            motorBL.setPower(-rightJoystickX);
-            motorBR.setPower(-rightJoystickX);
-        } else if (rightJoystickX >= -1 && rightJoystickX < 0){
-            motorFL.setPower(rightJoystickX);
-            motorFR.setPower(rightJoystickX);
-            motorBL.setPower(rightJoystickX);
-            motorBR.setPower(rightJoystickX);
+        if (rightJoystickX <= 1 && rightJoystickX > 0){ // Right Joystick Left (Counter Clockwise)
+            motorFL.setPower(rightJoystickX);  //  1
+            motorFR.setPower(-rightJoystickX); // -1
+            motorBL.setPower(rightJoystickX);  //  1
+            motorBR.setPower(-rightJoystickX); // -1
+        } else if (rightJoystickX >= -1 && rightJoystickX < 0){ // Right Joystick Right (Clockwise)
+            motorFL.setPower(rightJoystickX);  // -1
+            motorFR.setPower(-rightJoystickX); //  1
+            motorBL.setPower(rightJoystickX);  // -1
+            motorBR.setPower(-rightJoystickX); //  1
         }
     }
 
