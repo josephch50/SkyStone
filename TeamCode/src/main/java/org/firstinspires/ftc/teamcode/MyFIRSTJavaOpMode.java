@@ -25,6 +25,7 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private Servo servoGR;
     private Servo servoLH;
     private Servo servoGP;
+    boolean hookIsDown = false;
 
 
     @Override
@@ -48,9 +49,9 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         servoGP = hardwareMap.get(Servo.class, "servoGP");
 
         // Set Motor Power
-        motorFL.setPower(-0);
+        motorFL.setPower(0);
         motorFR.setPower(0);
-        motorBL.setPower(-0);
+        motorBL.setPower(0);
         motorBR.setPower(0);
         motorArmAngle.setPower(0);
         motorArmExtender.setPower(0);
@@ -76,9 +77,9 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorArmExtender.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set Servo Position
-        servoRH.setPosition(0);
+        servoRH.setPosition(0.5);
         servoGR.setPosition(0);
-        servoLH.setPosition(0);
+        servoLH.setPosition(0.5);
         servoGP.setPosition(0);
 
         telemetry.addData("Status", "Initialized");
@@ -103,12 +104,18 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
 
         double rightJoystickX = -gamepad1.right_stick_x; // Used to turn robot left(Counter-Clockwise)/right(Clockwise)
         double rightJoystickY = -gamepad1.right_stick_y; // Unused
-        int hookServoPos = 0;
-//        boolean yButtonPressed = -gamepad1.button3;
-//
-//        if ( yButtonPressed = true) {
-//            servo.
-//        }
+
+        if (gamepad1.y) {
+            if (hookIsDown) {
+                servoRH.setPosition(0.5);
+                servoLH.setPosition(0.5);
+                hookIsDown = false;
+            } else {
+                servoRH.setPosition(1);
+                servoLH.setPosition(1);
+                hookIsDown = true;
+            }
+        }
 
         telemetry.addData("Left Joystick (X,Y)", "(" + leftJoystickX + "," + leftJoystickY + ")");
         // Setting the motors to a negative value will cause the robot to go forwards
