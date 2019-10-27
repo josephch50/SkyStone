@@ -25,8 +25,10 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private Servo servoGR;
     private Servo servoLH;
     private Servo servoGP;
-    boolean hookIsDown = false;
-
+    //private boolean hookIsDown = false;
+    //private boolean leftTriggerIsPressed = false;
+    double interval = 0.05;
+    private double currentGripperRotatePosition;
 
     @Override
     public void runOpMode() {
@@ -118,91 +120,175 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         //GAMEPAD 1
 
 
+//        if (gamepad2.left_trigger > 0) {
+//            leftTriggerIsPressed = true;
+//        } else if (gamepad2.left_trigger == 0) {
+//            leftTriggerIsPressed = false;
+//        }
+
+//        if (gamepad1.y) {
+//            if (hookIsDown) {
+//                servoRH.setPosition(0.5);
+//                servoLH.setPosition(0.5);
+//                hookIsDown = false;
+//            } else {
+//                servoRH.setPosition(1);
+//                servoLH.setPosition(1);
+//                hookIsDown = true;
+//            }
+//        }
+
         if (gamepad1.y) {
-            if (hookIsDown) {
-                servoRH.setPosition(0.5);
-                servoLH.setPosition(0.5);
-                hookIsDown = false;
-            } else {
-                servoRH.setPosition(1);
-                servoLH.setPosition(1);
-                hookIsDown = true;
-            }
+            servoRH.setPosition(0.5);
+            servoLH.setPosition(0.5);
+        } else if (gamepad1.x) {
+            servoRH.setPosition(1);
+            servoLH.setPosition(1);
         }
+
+
+        //SENDING DATA TO PHONE WITH TELEMETRY
         telemetry.addData("Gamepad 2 Dpad Down Is Pressed", gamepad2.dpad_down);
         telemetry.addData("Left Joystick (X,Y)", "(" + leftJoystickX + "," + leftJoystickY + ")");
         telemetry.addData("Right Joystick (X,Y)", "(" + rightJoystickX + "," + rightJoystickY + ")");
+        //SENDING DATA TO PHONE WITH TELEMETRY
+
+
         // Setting the motors to a negative value will cause the robot to go forwards
         if (leftJoystickY < 0) { // Left Joystick Down (Backwards)
-            telemetry.addData("Direction", "Down");
+            telemetry.addData("Direction", "Down"); //GOING BACKWARDS, JOYSTICK DOWN
             motorFL.setPower(leftJoystickY); // -1
             motorFR.setPower(leftJoystickY); // -1
             motorBL.setPower(leftJoystickY); // -1
             motorBR.setPower(leftJoystickY); // -1
         } else if (leftJoystickY > 0) { // Left Joystick Up (Forwards)
-            telemetry.addData("Direction", "Up");
+            telemetry.addData("Direction", "Up"); //GOING FORWARDS WITH STICK UP
             motorFL.setPower(leftJoystickY); // 1
             motorFR.setPower(leftJoystickY); // 1
             motorBL.setPower(leftJoystickY); // 1
             motorBR.setPower(leftJoystickY); // 1
-        } else if (leftJoystickX > 0){ // Left Joystick Left (Left)
-            telemetry.addData("Direction", "Left");
+        } else if (leftJoystickX > 0) { // Left Joystick Left (Left)
+            telemetry.addData("Direction", "Left"); //GOING LEFT WITH STICK SIDEWAYS LEFT
             motorFL.setPower(-leftJoystickX);  //  1
             motorFR.setPower(leftJoystickX);   // -1
             motorBL.setPower(leftJoystickX);   // -1
             motorBR.setPower(-leftJoystickX);  //  1
         } else if (leftJoystickX < 0) { // Left Joystick Right (Right)
-            telemetry.addData("Direction", "Right");
+            telemetry.addData("Direction", "Right"); //GOING RIGHT WITH STICK SIDEWAYS RIGHT
             motorFL.setPower(-leftJoystickX);  //  1
             motorFR.setPower(leftJoystickX);   // -1
             motorBL.setPower(leftJoystickX);   // -1
             motorBR.setPower(-leftJoystickX);  //  1
-        } else if (rightJoystickX > 0) { // Right Joystick Left (Counter Clockwise)
-            telemetry.addData("Spin", "Counter Clockwise");
-            motorFL.setPower(-rightJoystickX); //  1
-            motorFR.setPower(rightJoystickX);  // -1
-            motorBL.setPower(-rightJoystickX); //  1
-            motorBR.setPower(rightJoystickX);  // -1
-        } else if (rightJoystickX < 0) { // Right Joystick Right (Clockwise)
-            telemetry.addData("Spin", "Clockwise");
-            motorFL.setPower(-rightJoystickX); // -1
-            motorFR.setPower(rightJoystickX);  //  1
-            motorBL.setPower(-rightJoystickX); // -1
-            motorBR.setPower(rightJoystickX);  //  1
-        } else if (gamepad2RightJoystickY < 0) {
-            motorArmAngle.setPower(-gamepad2RightJoystickY/1.5);
-        } else if (gamepad2RightJoystickY > 0) {
-            motorArmAngle.setPower(-gamepad2RightJoystickY/1.5);
-        } else if (gamepad2.dpad_up) { //joystick down
-            motorArmExtender.setPower(0.75); //negative, e.x. -1
-        } else if (gamepad2.dpad_down) { //joystick down
-            motorArmExtender.setPower(-0.75); //negative, e.x. -1
-        }
-         else if (gamepad2LeftJoystickX > 0) { //joystick down
-                servoGR.setPosition(0.35);
-        } else if (gamepad2LeftJoystickX < 0) { //joystick down
-            servoGR.setPosition(0.25);
-        }
-         else if (gamepad2.a) { //joystick down
-            servoGP.setPosition(0);
-        } else if (gamepad2.x) {
-            servoGP.setPosition(1);
-        } else if (gamepad2.b) {
-            servoGR.setPosition(0.25);
         } else {
             motorFL.setPower(0);
             motorFR.setPower(0);
             motorBL.setPower(0);
             motorBR.setPower(0);
+        }
+
+
+        // TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - //
+        if (rightJoystickX > 0) { // Right Joystick Left (Counter Clockwise)
+            telemetry.addData("Spin", "Counter Clockwise"); //TURNING COUNTER CLOCKWISE WITH STICK LEFT
+            motorFL.setPower(-rightJoystickX); //  1
+            motorFR.setPower(rightJoystickX);  // -1
+            motorBL.setPower(-rightJoystickX); //  1
+            motorBR.setPower(rightJoystickX);  // -1
+        } else if (rightJoystickX < 0) { // Right Joystick Right (Clockwise)
+            telemetry.addData("Spin", "Clockwise"); //TURNING CLOCKWISE WITH STICK RIGHT
+            motorFL.setPower(-rightJoystickX); // -1
+            motorFR.setPower(rightJoystickX);  //  1
+            motorBL.setPower(-rightJoystickX); // -1
+            motorBR.setPower(rightJoystickX);  //  1
+        }
+        // TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - //
+
+
+        //ARM ANGLE CHANGED WITH RIGHT JOYSTICK
+        if (gamepad2RightJoystickY < 0) {
+            motorArmAngle.setPower(-gamepad2RightJoystickY);
+        } else if (gamepad2RightJoystickY > 0) {
+            motorArmAngle.setPower(-gamepad2RightJoystickY);
+        } else {
             motorArmAngle.setPower(0);
+        }
+        //ARM ANGLE CHANGED WITH RIGHT JOYSTICK
+
+
+        //ARM EXTENDER CHANGED WITH DPAD
+        if (gamepad2.dpad_up) { //joystick down
+            motorArmExtender.setPower(0.75); //negative, e.x. -1
+        } else if (gamepad2.dpad_down) { //joystick down
+            motorArmExtender.setPower(-0.75); //negative, e.x. -1
+        } else {
             motorArmExtender.setPower(0);
         }
+        //ARM EXTENDER CHANGED WITH DPAD
+
+
+        //Gripper Wrist Position Set With X and Y position
+        if (gamepad2LeftJoystickX > 0) { //joystick down
+            currentGripperRotatePosition = 0.85;
+        } else if (gamepad2LeftJoystickX < 0) { //joystick down
+            currentGripperRotatePosition = 0.3;
+        }
+        //Gripper Wrist Position Set With X and Y position
+
+
+        // Click 'A' pincher goes up, Click 'X' and pincher pinches
+        if (gamepad2.a) {
+            servoGP.setPosition(0);
+        } else if (gamepad2.x) {
+            servoGP.setPosition(1);
+        }
+        // Click 'A' pincher goes up, Click 'X' and pincher pinches
+
+
+        //Click 'B' and Gripper Wrist goes down about 0.7 further for more precision for being parallel to the ground/block.
+        if (gamepad2.b) {
+            currentGripperRotatePosition = 0.17;
+        }
+
+        if (gamepad2.y && gamepad2LeftJoystickY < 0) { //Change Gripper Wrist angle by 0.1 per refresh.
+            currentGripperRotatePosition += interval;
+            if (currentGripperRotatePosition >= 0.85) {
+                currentGripperRotatePosition = 0.85;
+            }
+        }
+        // Joystick down, Gripper Rotate Down
+        if (gamepad2.y && gamepad2LeftJoystickY > 0) { //Change Gripper Wrist angle by 0.1 per refresh.
+            currentGripperRotatePosition -= interval;
+            if (currentGripperRotatePosition <= 0.15) {
+                currentGripperRotatePosition = 0.15;
+            }
+        }
+
+        servoGR.setPosition(currentGripperRotatePosition);
+
+        //Gripper wrist Control
+
+
+
+//        if (gamepad2RightJoystickX < 0.05 && gamepad2RightJoystickX > -0.05 && rightJoystickX > -0.05 && rightJoystickY < 0.05
+//                && rightJoystickY > -0.05 && leftJoystickX > -0.05 && leftJoystickX < 0.05){
+//            motorFL.setPower(0);
+//            motorFR.setPower(0);
+//            motorBL.setPower(0);
+//            motorBR.setPower(0);
+//            motorArmAngle.setPower(0);
+//        }
+
+        if (gamepad1.left_stick_button && gamepad1.right_stick_button){
+            motorFL.setPower(0);
+            motorFR.setPower(0);
+            motorBL.setPower(0);
+            motorBR.setPower(0);
+            motorArmAngle.setPower(0);
+        }
+    }
     }
 
-    private void armCtrl() {
 
-    }
-}
 
 
 
